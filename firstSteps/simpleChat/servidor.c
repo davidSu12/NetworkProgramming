@@ -63,14 +63,15 @@ int main(int argc, char **argv){
 
         if(select(max_socket + 1, &reads, 0, 0, 0) < 0){
             fprintf(stderr,"Select could not be fullfiled (%d)", WSAGetLastError());
+            return -1;
         }
 
 
         SOCKET i;
-        for(i = 0; i < max_socket; i++){
+        for(i = 0; i <= max_socket; i++){
             if(FD_ISSET(i, &reads)){
-
                 if(i == sock){ //this we just simply accept more connections
+                    printf("New connection added...\n");
                     struct tItemL * data = malloc(sizeof(struct tItemL));
                     struct sockaddr_storage client;
                     int client_size = sizeof(client);
@@ -95,7 +96,10 @@ int main(int argc, char **argv){
 
                     strcpy(data->userName, data_client);
                     data ->num_sock = client_socket;
-                    insertItem(*data, &lista_de_usuarios);
+
+                    if(insertItem(*data, &lista_de_usuarios)){
+                        printf("New client was added...\n");
+                    }
 
 
 
@@ -104,6 +108,7 @@ int main(int argc, char **argv){
                     char read[1024];
                     int bytes_received = recv(i, read, 1024, 0);
                     if(bytes_received < 1){
+                        printf("I dont received anything\n");
                         FD_CLR(i, &master);
                         CLOSESOCKET(i);
                         continue;
@@ -111,7 +116,6 @@ int main(int argc, char **argv){
 
                     for(tPosL pos = lista_de_usuarios; pos != NULL; pos = pos -> next){
                         send(pos -> data.num_sock, read, 1024, 0);
-                        printf("sending to %llu\n",pos->data.num_sock);
                     }
 
                 }

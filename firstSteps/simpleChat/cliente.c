@@ -63,11 +63,10 @@ int main(void){
 
         if(_kbhit()){
             char write[1024];
-            if(fgets(write, 1024, stdin)) break;
+            if(!fgets(write, 1024, stdin)) break;
             printf("Sending: %s\n", write);
 
             int bytes_sent = send(sock, write, 1024, 0);
-            printf("sent %d bytes of %d bytes", bytes_sent, 1024);
         }
     }
 
